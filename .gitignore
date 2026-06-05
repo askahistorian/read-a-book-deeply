@@ -1,0 +1,24 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+*.epub
+*.pdf
+*.docx
+*.mp3
+*.wav
+*.m4a
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+source/
+conversion/
+podcast/
+.notebooklm/
+*-深度总结.md
+*Deep Summary.md
+*_summary.md
+*_manifest.json

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Read a Book Deeply"
+  short_description: "Faithful whole-book deep summaries"
+  default_prompt: "Use $read-a-book-deeply to read this uploaded book fully and create a faithful deep summary."
