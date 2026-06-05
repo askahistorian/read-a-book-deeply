@@ -1,72 +1,72 @@
 # Read a Book Deeply
 
-[![Install on skills.sh](https://skills.sh/b/askahistorian/read-a-book-deeply)](https://skills.sh/askahistorian/read-a-book-deeply)
+[![Install on skills.sh](https://skills.sh/b/askahistorian/read-a-book-deeply)](https://skills.sh/askahistorian/read-a-book-deeply/read-a-book-deeply)
 
-Read the whole book, preserve its structure, and produce a faithful deep summary with an adversarial second pass.
+**中文** | [English](README.en.md)
 
-`read-a-book-deeply` is a Codex skill for serious book work: uploaded books become clean source/conversion workspaces, EPUB images are unpacked and verified, the full manuscript is summarized by chapter, and an A/B adversarial review helps catch omissions before the final written summary is delivered.
+完整读完一本书，保留原书结构，并通过 A/B 对抗审稿生成忠实、可追溯的深度总结。
 
-## Install
+`read-a-book-deeply` 是一个面向严肃阅读任务的 Codex skill。它把上传的 EPUB、PDF、DOCX、Markdown、纯文本等书籍整理成干净的本地工作区，修复 EPUB 图片链接，校验图像与图表资产，然后按原书目录、章节和小标题生成完整深度总结。若当前 Codex 环境支持 subagent，它会启动 A/B 双线程对抗流程：Agent A 负责完整总结，Agent B 专门寻找遗漏、误读和过度概括，最后由 Orchestrator 仲裁并写出唯一正式总结。
+
+## 安装
 
 ```bash
 npx skills add askahistorian/read-a-book-deeply --skill read-a-book-deeply
 ```
 
-Then ask Codex:
+然后对 Codex 说：
 
 ```text
-Use $read-a-book-deeply to read this EPUB and create a faithful deep summary in my language.
+使用 $read-a-book-deeply 读完这本 EPUB，并用中文生成忠实的深度总结。
 ```
 
-## What It Does
+## 它会做什么
 
-- Reads EPUB, PDF, DOCX, Markdown, text, and other book-length inputs.
-- Creates a disciplined book workspace with `source/` for originals and `conversion/` for manuscripts, images, manifests, and chapter material.
-- Uses MarkItDown plus a bundled EPUB image repair script to produce `conversion/book.md`.
-- Verifies Markdown image links and flags missing image assets before summarization.
-- Identifies genre and subgenre before summarizing.
-- Summarizes according to the book's actual table of contents, chapters, sections, and headings.
-- Runs an adversarial two-agent workflow when subagents are available: Agent A drafts coverage, Agent B hunts for omissions and risks, then the orchestrator writes the final summary.
-- Separates source content, summary synthesis, interpretive judgment, and critical evaluation.
-- Includes critical evaluation only when the user explicitly requests it.
+- 读取 EPUB、PDF、DOCX、Markdown、文本和其他书籍长度的输入。
+- 为每本书创建规范工作区：`source/` 保存原始文件，`conversion/` 保存转换稿、图片、manifest 和章节材料。
+- 使用 MarkItDown 与内置 EPUB 图片修复脚本生成 `conversion/book.md`。
+- 在总结前校验 Markdown 图片链接，并标记缺失图片资产。
+- 先识别体裁与子体裁，再决定总结重点。
+- 严格跟随原书目录、章节、分节和小标题，不用自由主题聚类替代原书结构。
+- 在可用时运行双 agent 对抗流程：Agent A 起草覆盖稿，Agent B 审查遗漏与风险，Orchestrator 写出最终稿。
+- 区分“原书内容”“总结综合”“解释性判断”“批判性评价”等质量标签，并按输出语言本地化。
+- 只有当用户明确要求时，才生成批判性评价。
 
-## Best For
+## 适合这些书
 
-- Academic books and monographs
-- History, biography, memoir, and civilization studies
-- Philosophy, religion, social science, and political thought
-- Business, self-help, and practical nonfiction
-- Fiction and literary works that need plot, character, theme, and narrative analysis
-- Multilingual book workflows where the summary should follow the user's requested language
+- 学术书与专著
+- 历史、传记、回忆录、文明研究
+- 哲学、宗教、社会科学、政治思想
+- 商业、自助、实践类非虚构
+- 需要情节、人物、主题与叙事分析的小说和文学作品
+- 需要按用户语言输出的多语言书籍精读流程
 
-## Quality Promise
+## 质量承诺
 
-This skill is designed for faithful depth, not shortcut summaries.
+这个 skill 追求的是忠实的深度，而不是快捷的概览。
 
-- Whole-book coverage comes before compression.
-- Factual fidelity comes before stylish prose.
-- Explicit evidence comes before interpretation.
-- Chapter structure comes before free-form topic clustering.
-- Uncertain claims are labeled instead of inflated.
-- User data stays local unless the user separately chooses to publish or upload it.
+- 完整阅读优先于压缩。
+- 事实忠实优先于漂亮文风。
+- 明确证据优先于解释发挥。
+- 章节结构优先于自由归纳。
+- 不确定内容会被标注，不会被包装成确定结论。
+- 用户数据默认留在本地，除非用户另行明确要求发布或上传。
 
-This repository contains only the skill and its reusable resources. It does not include user books, converted manuscripts, summaries, audio files, credentials, NotebookLM data, or environment files.
+本仓库只包含 skill 与可复用资源，不包含任何用户书籍、转换稿、总结、音频、凭据、NotebookLM 数据或环境文件。
 
-## Chinese 简介
+## 输出语言
 
-`read-a-book-deeply` 用于把上传书籍完整读完并生成忠实的深度总结。它会先整理 `source/` 与 `conversion/` 目录，转换 EPUB/PDF/DOCX/Markdown 等书稿，修复 EPUB 图片链接，再按原书目录、章节和小标题逐级总结。若当前 Codex 环境支持 subagent，它会使用 A/B 双线程对抗流程：A 负责完整总结，B 专门寻找遗漏、误读和过度概括，最后由主线程仲裁生成唯一正式总结。
-
-默认输出语言遵循：
+最终总结语言遵循固定优先级：
 
 1. 用户明确指定的语言
 2. 用户提问语言
 3. 英文 fallback
 
-中文用户仍可得到熟悉的 `书名-深度总结.md` 文件名和中文总结结构。
+中文用户默认可得到熟悉的 `书名-深度总结.md` 文件名。非中文用户默认使用 `Book Title - Deep Summary.md`。
 
-## Output Shape
+## 输出结构
 
-The skill creates one workspace per book:
+每本书会生成一个独立工作区：
 
 ```text
 BookTitle-YYYYMMDD-HHMMSS/
@@ -80,14 +80,14 @@ BookTitle-YYYYMMDD-HHMMSS/
     └── chapters/
 ```
 
-For Chinese requests, the final summary filename may be `书名-深度总结.md`.
+中文请求中，最终总结文件名可为 `书名-深度总结.md`。
 
-## Bundled Resources
+## 内置资源
 
-- `scripts/convert_book_with_assets.py`: converts book files with MarkItDown and repairs EPUB image links.
-- `scripts/validate_book_workspace.py`: checks final book workspace structure, required prompts, and image-link integrity.
-- `references/subagent-prompts/`: fixed prompt templates for the summarizer, skeptic, cross-review, response, and orchestrator stages.
+- `scripts/convert_book_with_assets.py`：使用 MarkItDown 转换书籍，并修复 EPUB 图片链接。
+- `scripts/validate_book_workspace.py`：检查最终书籍工作区结构、必要 prompt 和图片链接完整性。
+- `references/subagent-prompts/`：用于总结者、审稿者、交叉审查、回应与 Orchestrator 阶段的固定 prompt 模板。
 
-## Privacy
+## 隐私
 
-The skill itself does not publish, upload, or transmit user books. It only defines the local workflow and includes local scripts. Any future publishing or sharing action must be explicitly requested by the user.
+这个 skill 本身不会发布、上传或传输用户书籍。它只定义本地工作流并提供本地脚本。任何后续发布或分享动作都必须由用户明确要求。
