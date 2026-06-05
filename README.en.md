@@ -6,7 +6,7 @@
 
 Read the whole book, preserve its structure, and produce a faithful deep summary with an adversarial second pass.
 
-`read-a-book-deeply` is a Codex skill for serious book work. Uploaded books become clean local workspaces, EPUB images are unpacked and verified, the full manuscript is summarized by chapter, and an A/B adversarial review helps catch omissions before the final written summary is delivered.
+`read-a-book-deeply` is a Codex skill for serious book work. Uploaded books become clean local workspaces, EPUB images are unpacked and verified, the full manuscript is summarized by chapter, and subagent tools are attempted first for an A/B adversarial review before the final written summary is delivered. Fallback is used only when delegation cannot start.
 
 ## Install
 
@@ -28,7 +28,7 @@ Use $read-a-book-deeply to read this EPUB and create a faithful deep summary in 
 - Verifies Markdown image links and flags missing image assets before summarization.
 - Identifies genre and subgenre before summarizing.
 - Summarizes according to the book's actual table of contents, chapters, sections, and headings.
-- Runs an adversarial two-agent workflow when subagents are available: Agent A drafts coverage, Agent B hunts for omissions and risks, then the Orchestrator writes the final summary.
+- Attempts the adversarial two-agent workflow first: Agent A drafts coverage, Agent B hunts for omissions and risks, then the Orchestrator writes the final summary. Fallback is used only when delegation cannot start.
 - Separates source content, summary synthesis, interpretive judgment, and critical evaluation, with labels localized to the output language.
 - Includes critical evaluation only when the user explicitly requests it.
 

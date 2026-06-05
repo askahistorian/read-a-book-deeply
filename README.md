@@ -6,7 +6,7 @@
 
 完整读完一本书，保留原书结构，并通过 A/B 对抗审稿生成忠实、可追溯的深度总结。
 
-`read-a-book-deeply` 是一个面向严肃阅读任务的 Codex skill。它把上传的 EPUB、PDF、DOCX、Markdown、纯文本等书籍整理成干净的本地工作区，修复 EPUB 图片链接，校验图像与图表资产，然后按原书目录、章节和小标题生成完整深度总结。若当前 Codex 环境支持 subagent，它会启动 A/B 双线程对抗流程：Agent A 负责完整总结，Agent B 专门寻找遗漏、误读和过度概括，最后由 Orchestrator 仲裁并写出唯一正式总结。
+`read-a-book-deeply` 是一个面向严肃阅读任务的 Codex skill。它把上传的 EPUB、PDF、DOCX、Markdown、纯文本等书籍整理成干净的本地工作区，修复 EPUB 图片链接，校验图像与图表资产，然后按原书目录、章节和小标题生成完整深度总结。生成总结时，它必须优先尝试启动 A/B 双线程 subagent 对抗流程：Agent A 负责完整总结，Agent B 专门寻找遗漏、误读和过度概括，最后由 Orchestrator 仲裁并写出唯一正式总结；只有无法启动 subagent 时才使用 fallback 单线程自审路线。
 
 ## 安装
 
@@ -28,7 +28,7 @@ npx skills add askahistorian/read-a-book-deeply --skill read-a-book-deeply
 - 在总结前校验 Markdown 图片链接，并标记缺失图片资产。
 - 先识别体裁与子体裁，再决定总结重点。
 - 严格跟随原书目录、章节、分节和小标题，不用自由主题聚类替代原书结构。
-- 在可用时运行双 agent 对抗流程：Agent A 起草覆盖稿，Agent B 审查遗漏与风险，Orchestrator 写出最终稿。
+- 生成总结时优先启动双 agent 对抗流程：Agent A 起草覆盖稿，Agent B 审查遗漏与风险，Orchestrator 写出最终稿；仅无法启动 subagent 时才 fallback 到单线程自审。
 - 区分“原书内容”“总结综合”“解释性判断”“批判性评价”等质量标签，并按输出语言本地化。
 - 只有当用户明确要求时，才生成批判性评价。
 

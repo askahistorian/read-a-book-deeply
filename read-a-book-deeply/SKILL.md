@@ -7,7 +7,7 @@ description: Create faithful whole-book deep summaries from uploaded books and c
 
 ## Purpose
 
-Use this skill to turn an uploaded book into one faithful written deep summary. The workflow preserves the book's structure, repairs EPUB image links, uses an adversarial two-agent review when available, and stops after the written summary.
+Use this skill to turn an uploaded book into one faithful written deep summary. The workflow preserves the book's structure, repairs EPUB image links, requires an adversarial two-agent subagent review attempt before summarizing, and stops after the written summary.
 
 Do not add audio generation, narration scripts, API-key handling, or any continuation beyond the written deep summary.
 
@@ -79,7 +79,9 @@ Genre-specific emphasis:
 - Fiction/literature: plot structure, character arcs, themes, narrative technique, imagery, and emotional tone.
 - History, biography, memoir: historical context, key people, causal relationships, author viewpoint, and possible bias presented by the text.
 
-When subagent tools are available and the current environment permits delegation, orchestrate the two-agent workflow with `fork_context=false` for the first round. Give both agents only `conversion/book.md`, optional `conversion/chapters/`, optional `conversion/image_manifest.md`, the output target, genre, quality standards, and user requirements. Never use files in `source/` as subagent input.
+After conversion and image-link validation, attempt to start subagent tools before writing the final summary. The first summarization pass must use the two-agent workflow with `fork_context=false` whenever delegation can start. Give both agents only `conversion/book.md`, optional `conversion/chapters/`, optional `conversion/image_manifest.md`, the output target, genre, quality standards, and user requirements. Never use files in `source/` as subagent input.
+
+Use fallback only when subagent tools are absent, the current environment forbids delegation, or a concrete attempt to start subagents fails. Do not begin a single-thread deep summary until that subagent attempt has been made or ruled out by tool availability.
 
 Use the bundled templates in `references/subagent-prompts/`:
 
@@ -89,7 +91,7 @@ Use the bundled templates in `references/subagent-prompts/`:
 - `a-responds-b.md`: Agent A responds with accepted, rejected, or revised items.
 - `orchestrator-final.md`: Main thread arbitrates and writes the only final summary.
 
-If isolated subagents are unavailable, fall back to a single-thread deep summary plus self-review, and state in the final quality note that isolated subagents were not used.
+If fallback is required, use a single-thread deep summary plus self-review. In the final quality note, state that subagent launch was attempted or impossible to attempt, give the specific reason, and say that the workflow fell back to single-thread self-review.
 
 ## Final Summary Requirements
 
@@ -113,7 +115,7 @@ python path/to/read-a-book-deeply/scripts/validate_book_workspace.py "path/to/{B
 
 Fix every reported issue before delivering. In the conversation, provide only a concise quality note covering:
 
-- Agent A and Agent B roles, or the fallback used.
+- Agent A and Agent B roles, or the fallback reason and self-review route used.
 - Key revisions made after review.
 - Orchestrator arbitration result.
 - Residual risks, if any.
