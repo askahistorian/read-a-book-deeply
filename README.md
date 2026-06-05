@@ -17,7 +17,7 @@ npx skills add askahistorian/read-a-book-deeply --skill read-a-book-deeply
 然后对 Codex 说：
 
 ```text
-使用 $read-a-book-deeply 读完这本 EPUB，并用中文生成忠实的深度总结。
+使用 $read-a-book-deeply 读完这本 EPUB，并用中文生成忠实的深度总结；我明确授权你启动 subagents / 多代理对抗总结。
 ```
 
 ## 它会做什么

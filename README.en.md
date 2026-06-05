@@ -17,7 +17,7 @@ npx skills add askahistorian/read-a-book-deeply --skill read-a-book-deeply
 Then ask Codex:
 
 ```text
-Use $read-a-book-deeply to read this EPUB and create a faithful deep summary in my language.
+Use $read-a-book-deeply to read this EPUB and create a faithful deep summary in my language; I explicitly authorize you to start subagents / parallel agent work for the adversarial review.
 ```
 
 ## What It Does

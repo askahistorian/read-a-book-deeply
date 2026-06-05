@@ -81,7 +81,13 @@ Genre-specific emphasis:
 
 After conversion and image-link validation, attempt to start subagent tools before writing the final summary. The first summarization pass must use the two-agent workflow with `fork_context=false` whenever delegation can start. Give both agents only `conversion/book.md`, optional `conversion/chapters/`, optional `conversion/image_manifest.md`, the output target, genre, quality standards, and user requirements. Never use files in `source/` as subagent input.
 
-Use fallback only when subagent tools are absent, the current environment forbids delegation, or a concrete attempt to start subagents fails. Do not begin a single-thread deep summary until that subagent attempt has been made or ruled out by tool availability.
+If subagent tools are available but their tool policy requires explicit user authorization, use this authorization handshake before summarizing:
+
+1. If the current user request already explicitly authorizes `subagents`, `多代理`, `parallel agent work`, or equivalent delegated agent work, start the two-agent workflow immediately without asking again.
+2. If the current user request does not explicitly authorize subagents, ask the user for explicit authorization before summarizing. The authorization request must mention `subagents` or `多代理` plainly.
+3. If the user declines authorization, or if authorization cannot be obtained, fall back to a single-thread deep summary plus self-review and state that the user did not authorize subagents.
+
+Use fallback only when subagent tools are absent, the current environment forbids delegation, the user does not authorize subagents, or a concrete attempt to start subagents fails. Do not begin a single-thread deep summary until that subagent attempt has been made, explicitly authorized delegation has been requested and declined, or delegation has been ruled out by tool availability or environment policy.
 
 Use the bundled templates in `references/subagent-prompts/`:
 
@@ -91,7 +97,7 @@ Use the bundled templates in `references/subagent-prompts/`:
 - `a-responds-b.md`: Agent A responds with accepted, rejected, or revised items.
 - `orchestrator-final.md`: Main thread arbitrates and writes the only final summary.
 
-If fallback is required, use a single-thread deep summary plus self-review. In the final quality note, state that subagent launch was attempted or impossible to attempt, give the specific reason, and say that the workflow fell back to single-thread self-review.
+If fallback is required, use a single-thread deep summary plus self-review. In the final quality note, state whether Agent A and Agent B were launched, or give the specific fallback reason: user did not authorize subagents, subagent tools were unavailable, the environment forbade delegation, or subagent launch failed after a concrete attempt. Say that the workflow fell back to single-thread self-review.
 
 ## Final Summary Requirements
 
