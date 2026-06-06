@@ -10,7 +10,7 @@
 
 ## 前置条件
 
-本 skill 依赖外部 `markitdown` 命令完成 EPUB、PDF、DOCX 等文件到 Markdown 的基础转换。请先确保本机可以运行：
+本 skill 依赖外部 `markitdown` (https://github.com/microsoft/markitdown) 命令完成 EPUB、PDF、DOCX 等文件到 Markdown 的基础转换。请先确保本机可以运行：
 
 ```bash
 markitdown --help
