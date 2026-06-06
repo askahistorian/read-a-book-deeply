@@ -8,6 +8,22 @@ Read the whole book, preserve its structure, and produce a faithful deep summary
 
 `read-a-book-deeply` is a Codex skill for serious book work. Uploaded books become clean local workspaces, EPUB images are unpacked and verified, the full manuscript is summarized by chapter, and subagent tools are attempted first for an A/B adversarial review before the final written summary is delivered. Fallback is used only when delegation cannot start.
 
+## Prerequisites
+
+This skill depends on the external `markitdown` command for the base conversion from EPUB, PDF, DOCX, and similar files to Markdown. First make sure this command works on your machine:
+
+```bash
+markitdown --help
+```
+
+If the command is unavailable, install MarkItDown first, for example:
+
+```bash
+pip install markitdown
+```
+
+This skill does not bundle MarkItDown's core conversion logic. It calls the installed `markitdown` CLI, then repairs EPUB image links and creates `conversion/book.md` plus `image_manifest.md`.
+
 ## Install
 
 ```bash
@@ -77,7 +93,7 @@ BookTitle-YYYYMMDD-HHMMSS/
     ├── book.md
     ├── image_manifest.md
     ├── images/
-    └── chapters/
+    └── chapters/              optional
 ```
 
 ## Bundled Resources

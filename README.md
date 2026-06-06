@@ -8,6 +8,22 @@
 
 `read-a-book-deeply` 是一个面向严肃阅读任务的 Codex skill。它把上传的 EPUB、PDF、DOCX、Markdown、纯文本等书籍整理成干净的本地工作区，修复 EPUB 图片链接，校验图像与图表资产，然后按原书目录、章节和小标题生成完整深度总结。生成总结时，它必须优先尝试启动 A/B 双线程 subagent 对抗流程：Agent A 负责完整总结，Agent B 专门寻找遗漏、误读和过度概括，最后由 Orchestrator 仲裁并写出唯一正式总结；只有无法启动 subagent 时才使用 fallback 单线程自审路线。
 
+## 前置条件
+
+本 skill 依赖外部 `markitdown` 命令完成 EPUB、PDF、DOCX 等文件到 Markdown 的基础转换。请先确保本机可以运行：
+
+```bash
+markitdown --help
+```
+
+如果命令不存在，请先安装 MarkItDown，例如：
+
+```bash
+pip install markitdown
+```
+
+本 skill 不内置 MarkItDown 的核心转换能力；它会调用已安装的 `markitdown` CLI，并在此基础上修复 EPUB 图片链接、生成 `conversion/book.md` 与 `image_manifest.md`。
+
 ## 安装
 
 ```bash
@@ -77,7 +93,7 @@ BookTitle-YYYYMMDD-HHMMSS/
     ├── book.md
     ├── image_manifest.md
     ├── images/
-    └── chapters/
+    └── chapters/              optional
 ```
 
 中文请求中，最终总结文件名可为 `书名-深度总结.md`。
