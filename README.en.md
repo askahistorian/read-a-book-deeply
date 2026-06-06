@@ -10,7 +10,7 @@ Read the whole book, preserve its structure, and produce a faithful deep summary
 
 ## Prerequisites
 
-This skill depends on the external `markitdown` command for the base conversion from EPUB, PDF, DOCX, and similar files to Markdown. First make sure this command works on your machine:
+This skill depends on the external `markitdown` (https://github.com/microsoft/markitdown) command for the base conversion from EPUB, PDF, DOCX, and similar files to Markdown. First make sure this command works on your machine:
 
 ```bash
 markitdown --help
