@@ -65,9 +65,11 @@ The script runs MarkItDown, extracts EPUB images into `conversion/images/`, rewr
 After conversion:
 
 1. Move or copy the repaired manuscript to `conversion/book.md`.
-2. Remove or archive intermediate files whose names contain `source` if they are no longer needed.
+2. Do not create top-level intermediate artifacts. Keep converted source drafts, repair outputs, manifests, agent drafts, review notes, QA notes, and other working files inside `conversion/`.
 3. Check `conversion/image_manifest.md`; any `MISSING` entry must be fixed before summarizing.
 4. If conversion already produced `source.md`, rerun with `--skip-convert` to repair assets without reconverting.
+
+Use `conversion/_work/` or `conversion/review/` for intermediate material that needs to exist after the run. Delivery does not require deleting internal `conversion/` working files; the requirement is that the book directory top level stays clean.
 
 ## Summarize With Adversarial Review
 
@@ -109,7 +111,7 @@ The final written summary must:
 - Include critical evaluation only when the user explicitly asks for it, and label it separately.
 - Prefer factual fidelity over style, chapter coverage over compression, and explicit evidence over speculation.
 
-Only keep one final written summary at the book directory top level. Do not keep long final QA reports, agent drafts, critique logs, or intermediate review files unless the user explicitly asks for them.
+Only keep one final written summary at the book directory top level. Do not write long final QA reports, agent drafts, critique logs, or intermediate review files at the book directory top level unless the user explicitly asks for them. If those materials need to be retained, keep them inside `conversion/_work/` or `conversion/review/`.
 
 ## Validate Before Delivery
 
