@@ -39,6 +39,7 @@ Create one directory per book using `{BookTitle}-{timestamp}`. Keep the top leve
 │   └── original uploaded book
 └── conversion/
     ├── book.md
+    ├── checkpoint.yaml
     ├── image_manifest.md
     ├── images/
     └── chapters/              optional
@@ -49,8 +50,15 @@ Rules:
 - Put original uploaded files only in `source/`.
 - Put conversion files only in `conversion/`.
 - Normalize the main converted manuscript to `conversion/book.md`.
+- Create and update `conversion/checkpoint.yaml`; it is the single-book recovery record.
 - Do not leave `source.md`, `source_with_real_images.md`, `image_manifest.md`, or `Image000xx.jpg` files at the book directory top level.
 - Read Markdown as UTF-8.
+
+## Resume From Checkpoint
+
+Before starting new work, inspect the target directory for an existing book workspace or collection workspace. Recovery state is authoritative in `conversion/checkpoint.yaml` for a single book and `collection_manifest.yaml` for a multi-book collection.
+
+Follow `references/checkpointing.md` for checkpoint fields, phase names, authorization state, atomic writes, and resume rules. If checkpoint state is missing, malformed, conflicts with the actual files, or says fallback authorization is required but not authorized, stop and ask the user how to proceed. Do not infer a hidden fallback path.
 
 ## Convert The Book
 
@@ -60,7 +68,7 @@ Use `scripts/convert_book_with_assets.py` for EPUB and image-heavy files:
 python path/to/read-a-book-deeply/scripts/convert_book_with_assets.py "source/original.epub" "conversion"
 ```
 
-The script runs MarkItDown, extracts EPUB images into `conversion/images/`, rewrites Markdown image links, and writes `conversion/image_manifest.md`.
+The script runs MarkItDown, extracts EPUB images into `conversion/images/`, rewrites Markdown image links, writes `conversion/image_manifest.md`, and initializes `conversion/checkpoint.yaml`.
 
 After conversion:
 
@@ -87,9 +95,9 @@ If subagent tools are available but their tool policy requires explicit user aut
 
 1. If the current user request already explicitly authorizes `subagents`, `多代理`, `parallel agent work`, or equivalent delegated agent work, start the two-agent workflow immediately without asking again.
 2. If the current user request does not explicitly authorize subagents, ask the user for explicit authorization before summarizing. The authorization request must mention `subagents` or `多代理` plainly.
-3. If the user declines authorization, or if authorization cannot be obtained, fall back to a single-thread deep summary plus self-review and state that the user did not authorize subagents.
+3. If the user declines authorization, or if authorization cannot be obtained, do not fall back automatically. Ask whether the user explicitly authorizes a single-thread fallback.
 
-Use fallback only when subagent tools are absent, the current environment forbids delegation, the user does not authorize subagents, or a concrete attempt to start subagents fails. Do not begin a single-thread deep summary until that subagent attempt has been made, explicitly authorized delegation has been requested and declined, or delegation has been ruled out by tool availability or environment policy.
+Use fallback only when subagent tools are absent, the current environment forbids delegation, the user does not authorize subagents, or a concrete attempt to start subagents fails, and only after the user explicitly authorizes single-thread fallback for that run. Do not begin a single-thread deep summary until that fallback authorization is received.
 
 Use the bundled templates in `references/subagent-prompts/`:
 
@@ -99,7 +107,19 @@ Use the bundled templates in `references/subagent-prompts/`:
 - `a-responds-b.md`: Agent A responds with accepted, rejected, or revised items.
 - `orchestrator-final.md`: Main thread arbitrates and writes the only final summary.
 
-If fallback is required, use a single-thread deep summary plus self-review. In the final quality note, state whether Agent A and Agent B were launched, or give the specific fallback reason: user did not authorize subagents, subagent tools were unavailable, the environment forbade delegation, or subagent launch failed after a concrete attempt. Say that the workflow fell back to single-thread self-review.
+If fallback is explicitly authorized by the user, use a single-thread deep summary plus self-review. In the final quality note, state whether Agent A and Agent B were launched, or give the specific fallback reason: user did not authorize subagents, subagent tools were unavailable, the environment forbade delegation, or subagent launch failed after a concrete attempt. Also state that the user explicitly authorized single-thread fallback for that run.
+
+## Multi-book / Thematic Reading Mode
+
+Use multi-book thematic reading mode whenever the user uploads or asks to read multiple books in one request. Treat the batch as one thematic reading collection. If the user gives a theme, use it as the collection theme. If not, infer a provisional theme direction and record it in `collection_manifest.yaml`; do not replace single-book chapter coverage with theme clustering.
+
+Run the single-book standard independently for every book. The main thread owns source placement, conversion, image validation, per-book A/B launch or queueing, artifact validation, Orchestrator arbitration, checkpoint updates, validation, final theme selection, collection synthesis, and delivery. Do not create a Book Worker subagent or ask any subagent to launch other subagents.
+
+Detailed collection workspace rules, manifest/checkpoint schema, subagent artifact protocol, Agent C/D roles, fallback rules, evidence levels, claims ledger, and validation requirements are in `references/collection-mode.md`. Checkpoint/resume rules are in `references/checkpointing.md`. Before delivery, run:
+
+```bash
+python path/to/read-a-book-deeply/scripts/validate_collection_workspace.py "path/to/{Theme}-collection-{timestamp}" --skill-dir "path/to/read-a-book-deeply"
+```
 
 ## Final Summary Requirements
 

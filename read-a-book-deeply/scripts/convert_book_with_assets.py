@@ -20,6 +20,8 @@ import zipfile
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
+import checkpoint
+
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 IMAGE_LINK_RE = re.compile(
@@ -154,6 +156,17 @@ def convert_book(input_path: Path, output_dir: Path, skip_convert: bool = False)
         raise RuntimeError(
             "Some Markdown image links still do not resolve: " + ", ".join(missing_links)
         )
+
+    checkpoint_data = checkpoint.default_checkpoint(
+        checkpoint.SINGLE_CHECKPOINT_KIND,
+        "converted",
+    )
+    checkpoint_data["completed_files"] = [
+        "conversion/book.md",
+        "conversion/image_manifest.md",
+    ]
+    checkpoint_data["validation"]["validator"] = "scripts/validate_book_workspace.py"
+    checkpoint.write_checkpoint(output_dir / "checkpoint.yaml", checkpoint_data)
 
     return ConversionReport(
         input_file=str(input_path),

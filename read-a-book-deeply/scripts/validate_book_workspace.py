@@ -8,6 +8,7 @@ upload anything, or call external services.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import sys
@@ -29,6 +30,30 @@ REQUIRED_PROMPTS = {
 
 def add_issue(issues: list[str], message: str) -> None:
     issues.append(message)
+
+
+def load_checkpoint_module(skill_dir: Path, issues: list[str]):
+    checkpoint_path = skill_dir / "scripts" / "checkpoint.py"
+    if not checkpoint_path.is_file():
+        add_issue(issues, "Skill is missing scripts/checkpoint.py.")
+        return None
+
+    spec = importlib.util.spec_from_file_location("checkpoint", checkpoint_path)
+    if spec is None or spec.loader is None:
+        add_issue(issues, "Could not load scripts/checkpoint.py.")
+        return None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    required_attrs = (
+        "single_checkpoint_path",
+        "validate_checkpoint_file",
+        "SINGLE_CHECKPOINT_KIND",
+    )
+    for attr in required_attrs:
+        if not hasattr(module, attr):
+            add_issue(issues, f"scripts/checkpoint.py does not expose {attr}.")
+            return None
+    return module
 
 
 def validate_source(book_dir: Path, issues: list[str]) -> None:
@@ -107,6 +132,24 @@ def validate_skill_prompts(skill_dir: Path, issues: list[str]) -> None:
     if missing:
         add_issue(issues, "Missing subagent prompt templates: " + ", ".join(missing))
 
+    checkpointing = skill_dir / "references" / "checkpointing.md"
+    if not checkpointing.is_file():
+        add_issue(issues, "Skill is missing references/checkpointing.md.")
+
+
+def validate_checkpoint(book_dir: Path, skill_dir: Path, issues: list[str]) -> None:
+    checkpoint_module = load_checkpoint_module(skill_dir, issues)
+    if checkpoint_module is None:
+        return
+    checkpoint_path = checkpoint_module.single_checkpoint_path(book_dir)
+    report = checkpoint_module.validate_checkpoint_file(
+        checkpoint_path,
+        checkpoint_module.SINGLE_CHECKPOINT_KIND,
+    )
+    if not report.get("ok"):
+        detail = "; ".join(str(item) for item in report.get("issues", []))
+        add_issue(issues, f"Single-book checkpoint is invalid: {detail}")
+
 
 def validate(book_dir: Path, skill_dir: Path) -> dict[str, object]:
     issues: list[str] = []
@@ -115,6 +158,7 @@ def validate(book_dir: Path, skill_dir: Path) -> dict[str, object]:
     else:
         validate_source(book_dir, issues)
         validate_conversion(book_dir, issues)
+        validate_checkpoint(book_dir, skill_dir, issues)
         validate_top_level(book_dir, issues)
     validate_skill_prompts(skill_dir, issues)
     return {

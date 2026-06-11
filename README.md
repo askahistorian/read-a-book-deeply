@@ -6,7 +6,7 @@
 
 完整读完一本书，保留原书结构，并通过 A/B 对抗审稿生成忠实、可追溯的深度总结。
 
-`read-a-book-deeply` 是一个面向严肃阅读任务的 Codex skill。它把上传的 EPUB、PDF、DOCX、Markdown、纯文本等书籍整理成干净的本地工作区，修复 EPUB 图片链接，校验图像与图表资产，然后按原书目录、章节和小标题生成完整深度总结。生成总结时，它必须优先尝试启动 A/B 双线程 subagent 对抗流程：Agent A 负责完整总结，Agent B 专门寻找遗漏、误读和过度概括，最后由 Orchestrator 仲裁并写出唯一正式总结；只有无法启动 subagent 时才使用 fallback 单线程自审路线。
+`read-a-book-deeply` 是一个面向严肃阅读任务的 Codex skill。它把上传的 EPUB、PDF、DOCX、Markdown、纯文本等书籍整理成干净的本地工作区，修复 EPUB 图片链接，校验图像与图表资产，然后按原书目录、章节和小标题生成完整深度总结。生成总结时，它必须优先尝试启动 A/B 双线程 subagent 对抗流程：Agent A 负责完整总结，Agent B 专门寻找遗漏、误读和过度概括，最后由 Orchestrator 仲裁并写出唯一正式总结；如果双 agent 无法启动，必须先获得用户明确授权，才可改用单线程自审 fallback。
 
 ## 前置条件
 
@@ -36,6 +36,12 @@ npx skills add askahistorian/read-a-book-deeply --skill read-a-book-deeply
 使用 $read-a-book-deeply 读完这本 EPUB，并用中文生成忠实的深度总结；我明确授权你启动 subagents / 多代理对抗总结。
 ```
 
+也可以用于多书主题共读。一次上传多本书时，skill 会自动视为同主题共读；如果你没有指定主题，它会先判断一个临时主题方向，等每本书独立深读和验证完成后，再自动选出正式主题与两个备选主题。
+
+```text
+使用 $read-a-book-deeply 围绕“现代国家形成”主题读这 3 本书，并生成中文主题共读报告；我授权你启动 subagents / 多代理。
+```
+
 ## 它会做什么
 
 - 读取 EPUB、PDF、DOCX、Markdown、文本和其他书籍长度的输入。
@@ -44,7 +50,10 @@ npx skills add askahistorian/read-a-book-deeply --skill read-a-book-deeply
 - 在总结前校验 Markdown 图片链接，并标记缺失图片资产。
 - 先识别体裁与子体裁，再决定总结重点。
 - 严格跟随原书目录、章节、分节和小标题，不用自由主题聚类替代原书结构。
-- 生成总结时优先启动双 agent 对抗流程：Agent A 起草覆盖稿，Agent B 审查遗漏与风险，Orchestrator 写出最终稿；仅无法启动 subagent 时才 fallback 到单线程自审。
+- 生成总结时优先启动双 agent 对抗流程：Agent A 起草覆盖稿，Agent B 审查遗漏与风险，Orchestrator 写出最终稿；双 agent 无法启动时，不会自动降级，必须先由用户明确授权单线程自审 fallback。
+- 支持多书主题共读：主线程直接管理每本书的转换、图片校验、并发 A/B 启动、artifact 校验、仲裁和验证；先逐本完成并验证单书深读，再在集合层生成可追溯的比较、分歧分析、概念矩阵、claims ledger 和主题共读报告。
+- 多书模式使用并发 artifact 隔离协议：每个 subagent attempt 都带有唯一 `run_id`、`book_id`、`agent_id` 和 `attempt_id`，长输出先拆成体裁兼容的结构化材料，通过校验后才进入 Orchestrator；单书模式逻辑不变。
+- 未指定主题时，先生成临时主题方向；所有单书总结完成后，自动生成正式共读主题和两个备选主题。
 - 区分“原书内容”“总结综合”“解释性判断”“批判性评价”等质量标签，并按输出语言本地化。
 - 只有当用户明确要求时，才生成批判性评价。
 
@@ -91,6 +100,7 @@ BookTitle-YYYYMMDD-HHMMSS/
 │   └── original uploaded book
 └── conversion/
     ├── book.md
+    ├── checkpoint.yaml
     ├── image_manifest.md
     ├── images/
     └── chapters/              optional
@@ -98,11 +108,20 @@ BookTitle-YYYYMMDD-HHMMSS/
 
 中文请求中，最终总结文件名可为 `书名-深度总结.md`。
 
+多书主题共读会额外生成一个 collection 工作区，默认使用 linked 模式指向已验证的单书工作区。collection 顶层只保留一个主题共读报告，横向综合材料、审稿记录、批量 checkpoint/resume 状态和 claims ledger 留在 `synthesis/` 或 `collection_manifest.yaml` 中；它不会替代任何单书深度总结。
+
 ## 内置资源
 
 - `scripts/convert_book_with_assets.py`：使用 MarkItDown 转换书籍，并修复 EPUB 图片链接。
+- `scripts/checkpoint.py`：创建、原子写入并校验单书 checkpoint 与 collection resume 字段。
 - `scripts/validate_book_workspace.py`：检查最终书籍工作区结构、必要 prompt 和图片链接完整性。
+- `scripts/validate_collection_workspace.py`：检查多书主题共读 collection 工作区、manifest、claims ledger、逐书链接和单书验证结果。
+- `scripts/validate_subagent_artifact.py`：检查多书模式 accepted subagent artifact 的 sentinel、必需结构和 cumulative-append corruption。
+- `references/collection-mode.md`：多书主题共读的详细工作流、证据等级、manifest、per-book card 和 claims ledger 规范。
+- `references/checkpointing.md`：单书与多书中断恢复、授权状态、checkpoint 字段和 validator 契约。
 - `references/subagent-prompts/`：用于总结者、审稿者、交叉审查、回应与 Orchestrator 阶段的固定 prompt 模板。
+- `references/subagent-prompts/agent-a-summarizer-multibook.md`、`agent-b-skeptic-multibook.md`、`orchestrator-final-multibook.md`：多书模式逐书 A/B 结构化材料和单书最终仲裁模板。
+- `references/subagent-prompts/agent-c-cross-book-synthesizer.md`、`agent-d-cross-book-skeptic.md`、`orchestrator-collection-final.md`：多书横向综合、横向审查和集合最终仲裁模板。
 
 ## 隐私
 
