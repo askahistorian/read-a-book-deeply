@@ -120,7 +120,7 @@ Default to `linked` mode. It keeps the collection workspace small and points bac
 ```text
 {Theme}-collection-{timestamp}/
 ├── collection_manifest.yaml
-├── 主题共读报告.md
+├── 主题共读报告.md or {Theme} - Thematic Reading Report.md
 └── synthesis/
     ├── inputs/
     │   ├── per_book_cards.md
@@ -143,7 +143,7 @@ Use `bundled` mode only when the user needs a portable archive. In bundled mode,
 ```text
 {Theme}-collection-{timestamp}/
 ├── collection_manifest.yaml
-├── 主题共读报告.md
+├── 主题共读报告.md or {Theme} - Thematic Reading Report.md
 ├── books/
 │   ├── BookA-YYYYMMDD-HHMMSS/
 │   ├── BookB-YYYYMMDD-HHMMSS/
@@ -260,6 +260,7 @@ Required fields:
 - If `theme_inference.user_provided_theme` is `false`, `provisional_theme_direction`, `selected_theme`, at least two `alternative_themes`, and `theme_selection_basis` are required before final delivery.
 - `selected_theme` must be written only after all books are validated.
 - The final thematic report must use `selected_theme`.
+- `synthesis.final_report` must follow `SKILL.md` output filename rules: Chinese collection requests use `主题共读报告.md`; non-Chinese collection requests use `{Theme} - Thematic Reading Report.md` unless the user requested a filename.
 - `orchestration` is required, with `parallel_enabled: true`, `max_parallel_books: 3` by default, `authorization_scope: batch`, `quality_gate: queue_not_downgrade`, and `owner: main_thread`.
 - `mode` must be `linked` or `bundled`.
 - `books` must contain at least two books.

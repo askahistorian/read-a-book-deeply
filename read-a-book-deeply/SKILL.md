@@ -19,7 +19,9 @@ Choose the final summary language in this order:
 2. The language of the user's request.
 3. English if the request language is unclear.
 
-For Chinese requests, keep the final filename as `书名-深度总结.md`. For non-Chinese requests, use `{Book Title} - Deep Summary.md` unless the user requests a filename.
+For Chinese single-book requests, keep the final filename as `书名-深度总结.md`. For non-Chinese single-book requests, use `{Book Title} - Deep Summary.md` unless the user requests a filename.
+
+For Chinese collection requests, use `主题共读报告.md` unless the user requests a filename. For non-Chinese collection requests, use `{Theme} - Thematic Reading Report.md` unless the user requests a filename.
 
 Use localized section labels for these concepts while preserving their meaning:
 
